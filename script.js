@@ -1,262 +1,129 @@
 let username = '';
-const startScreen = document.getElementById('startScreen');
-const modeMenu = document.getElementById('modeMenu');
-const inProgressScreen = document.getElementById('inProgressScreen');
-const gameCanvas = document.getElementById('gameCanvas');
-const ctx = gameCanvas.getContext('2d');
+let canvas = document.getElementById('gameCanvas');
+let ctx = canvas.getContext('2d');
+let gameRunning = false;
 
+// Function to go to the mode menu
 function goToModeMenu() {
-  const input = document.getElementById('usernameInput');
-  username = input.value.trim();
+  username = document.getElementById('usernameInput').value.trim();
   if (!username) {
     alert("Please enter a username.");
     return;
   }
+
   document.getElementById('startScreen').style.display = 'none';
   document.getElementById('modeMenu').style.display = 'flex';
 }
 
-
-function startMode(mode) {
-  modeMenu.style.display = 'none';
-  if (mode === 'assassination') {
-    startAssassinationMode();
-  } else {
-    inProgressScreen.style.display = 'flex';
-  }
+// Function to start Assassination Mode
+function startAssassinationMode() {
+  document.getElementById('modeMenu').style.display = 'none';
+  document.getElementById('gameCanvas').style.display = 'block';
+  startGame(); // Start the game
 }
 
-// ===== ASSASSINATION MODE =====
-function startAssassinationMode() {
-  gameCanvas.style.display = 'block';
-  gameCanvas.width = window.innerWidth;
-  gameCanvas.height = window.innerHeight;
+// Function to show 'In Progress' screen for other modes
+function showInProgress() {
+  document.getElementById('modeMenu').style.display = 'none';
+  document.getElementById('inProgress').style.display = 'block';
+}
 
-  const player = {
-    x: 0,
-    y: 0,
-    dx: 0,
-    dy: 0,
-    speed: 2,
+// Start the game (Assassination Mode)
+function startGame() {
+  gameRunning = true;
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+  // Dummy setup for Assassination Mode
+  let player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
     size: 10,
-    color: 'white',
-    trail: [],
-    length: 30
+    color: 'green'
   };
 
-  const food = [];
-  const targetSnakes = [];
-  const aiSnakes = [];
+  let blueSnakes = [
+    { x: 100, y: 100, size: 10 },
+    { x: 700, y: 500, size: 10 }
+  ];
 
-  const WORLD_RADIUS = 2000;
+  let yellowSnakes = [
+    { x: 300, y: 300, size: 10 },
+    { x: 500, y: 200, size: 10 }
+  ];
 
-  // Key tracking
-  const keys = {};
-  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+  let food = [
+    { x: 400, y: 250, size: 5 },
+    { x: 600, y: 400, size: 5 }
+  ];
 
-  function spawnFood() {
-    for (let i = 0; i < 100; i++) {
-      food.push({
-        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        color: 'red'
-      });
-    }
-  }
-
-  function spawnTargetSnakes() {
-    for (let i = 0; i < 2; i++) {
-      targetSnakes.push({
-        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        color: 'blue',
-        size: 10,
-        trail: [],
-        length: 25
-      });
-    }
-  }
-
-  function spawnAISnakes() {
-    for (let i = 0; i < 10; i++) {
-      aiSnakes.push({
-        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
-        color: 'yellow',
-        size: 10,
-        trail: [],
-        length: 25
-      });
-    }
-  }
-
-  function movePlayer() {
-    if (keys['w'] || keys['arrowup']) player.dy = -player.speed;
-    else if (keys['s'] || keys['arrowdown']) player.dy = player.speed;
-    else player.dy = 0;
-
-    if (keys['a'] || keys['arrowleft']) player.dx = -player.speed;
-    else if (keys['d'] || keys['arrowright']) player.dx = player.speed;
-    else player.dx = 0;
-
-    player.x += player.dx;
-    player.y += player.dy;
-
-    player.trail.push({ x: player.x, y: player.y });
-    while (player.trail.length > player.length) {
-      player.trail.shift();
-    }
-  }
-
-  function drawSnake(snake) {
-    ctx.fillStyle = snake.color;
-    for (let t of snake.trail) {
-      ctx.beginPath();
-      ctx.arc(t.x, t.y, snake.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(snake.x, snake.y, snake.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  function moveAISnake(snake) {
-    let angle = Math.atan2(0 - snake.y, 0 - snake.x);
-    snake.x += Math.cos(angle) * 1.5;
-    snake.y += Math.sin(angle) * 1.5;
-
-    snake.trail.push({ x: snake.x, y: snake.y });
-    while (snake.trail.length > snake.length) {
-      snake.trail.shift();
-    }
-  }
-
-  function drawFood() {
-    for (let f of food) {
-      ctx.fillStyle = f.color;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  function eatFood() {
-    for (let i = food.length - 1; i >= 0; i--) {
-      const f = food[i];
-      const dx = f.x - player.x;
-      const dy = f.y - player.y;
-      if (Math.hypot(dx, dy) < player.size + 5) {
-        food.splice(i, 1);
-        player.length += 5;
-      }
-    }
-  }
-
-  function checkCollisions() {
-    for (let i = targetSnakes.length - 1; i >= 0; i--) {
-      const t = targetSnakes[i];
-      if (Math.hypot(t.x - player.x, t.y - player.y) < t.size + player.size) {
-        targetSnakes.splice(i, 1);
-        player.length += 10;
-      }
-    }
-
-    for (let ai of aiSnakes) {
-      if (Math.hypot(ai.x - player.x, ai.y - player.y) < ai.size + player.size) {
-        endGame(false);
-      }
-    }
-
-    if (targetSnakes.length === 0) {
-      endGame(true);
-    }
-  }
-
-  function endGame(won) {
-    alert(won ? "Assassination Complete!" : "You Died!");
-    location.reload();
-  }
-
-  function drawMinimap() {
-    const mapRadius = 100;
-    const cx = gameCanvas.width - mapRadius - 20;
-    const cy = gameCanvas.height - mapRadius - 20;
-
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath();
-    ctx.arc(cx, cy, mapRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "white";
-    ctx.fill();
-    ctx.clip();
-
-    function mapX(x) {
-      return cx + (x / WORLD_RADIUS) * mapRadius;
-    }
-
-    function mapY(y) {
-      return cy + (y / WORLD_RADIUS) * mapRadius;
-    }
-
-    for (let f of food) {
-      ctx.fillStyle = f.color;
-      ctx.beginPath();
-      ctx.arc(mapX(f.x), mapY(f.y), 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    for (let t of targetSnakes) {
-      ctx.fillStyle = t.color;
-      ctx.beginPath();
-      ctx.arc(mapX(t.x), mapY(t.y), 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    for (let ai of aiSnakes) {
-      ctx.fillStyle = ai.color;
-      ctx.beginPath();
-      ctx.arc(mapX(ai.x), mapY(ai.y), 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(mapX(player.x), mapY(player.y), 4, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-    ctx.save();
-    ctx.translate(gameCanvas.width / 2 - player.x, gameCanvas.height / 2 - player.y);
-
-    drawFood();
-    drawSnake(player);
-    for (let t of targetSnakes) drawSnake(t);
-    for (let ai of aiSnakes) {
-      moveAISnake(ai);
-      drawSnake(ai);
-    }
-
-    ctx.restore();
-
-    drawMinimap();
-  }
-
+  // Game Loop
   function gameLoop() {
-    movePlayer();
-    eatFood();
-    checkCollisions();
-    draw();
+    if (!gameRunning) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+
+    // Draw player
+    ctx.fillStyle = player.color;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw blue snakes (targets)
+    ctx.fillStyle = 'blue';
+    blueSnakes.forEach(snake => {
+      ctx.beginPath();
+      ctx.arc(snake.x, snake.y, snake.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Draw yellow snakes (attackers)
+    ctx.fillStyle = 'yellow';
+    yellowSnakes.forEach(snake => {
+      ctx.beginPath();
+      ctx.arc(snake.x, snake.y, snake.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Draw food
+    ctx.fillStyle = 'red';
+    food.forEach(f => {
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Basic Game Movement Logic for the Player (WASD controls)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'w') player.y -= 5;
+      if (e.key === 's') player.y += 5;
+      if (e.key === 'a') player.x -= 5;
+      if (e.key === 'd') player.x += 5;
+    });
+
+    // Collision detection for player with food
+    food.forEach((f, index) => {
+      if (Math.hypot(player.x - f.x, player.y - f.y) < player.size + f.size) {
+        food.splice(index, 1); // Remove food
+        // Add player size growth
+        player.size += 2;
+      }
+    });
+
+    // Check for collisions with blue snakes (win condition)
+    blueSnakes.forEach((snake, index) => {
+      if (Math.hypot(player.x - snake.x, player.y - snake.y) < player.size + snake.size) {
+        alert("You killed a target snake!");
+        blueSnakes.splice(index, 1); // Remove the target snake
+        if (blueSnakes.length === 0) {
+          alert("Assassination Complete!");
+          gameRunning = false;
+        }
+      }
+    });
+
+    // Loop again
     requestAnimationFrame(gameLoop);
   }
 
-  spawnFood();
-  spawnTargetSnakes();
-  spawnAISnakes();
-  gameLoop();
+  gameLoop(); // Start the game loop
 }
