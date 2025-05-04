@@ -47,6 +47,29 @@ button:hover {
     display: block;
 }
 
+#controls {
+    color: white;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#backButton {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: #444;
+    padding: 10px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+#backButton:hover {
+    background-color: #666;
+}
+
 #inProgress {
     display: flex;
     justify-content: center;
@@ -54,3 +77,4 @@ button:hover {
     height: 100vh;
     background-color: #333;
 }
+
