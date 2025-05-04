@@ -6,14 +6,16 @@ const gameCanvas = document.getElementById('gameCanvas');
 const ctx = gameCanvas.getContext('2d');
 
 function goToModeMenu() {
-  username = document.getElementById('usernameInput').value.trim();
+  const input = document.getElementById('usernameInput');
+  username = input.value.trim();
   if (!username) {
     alert("Please enter a username.");
     return;
   }
-  startScreen.style.display = 'none';
-  modeMenu.style.display = 'flex';
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('modeMenu').style.display = 'flex';
 }
+
 
 function startMode(mode) {
   modeMenu.style.display = 'none';
