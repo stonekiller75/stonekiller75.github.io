@@ -1,47 +1,31 @@
 body {
     margin: 0;
+    padding: 0;
     background: black;
     color: white;
     font-family: sans-serif;
-    overflow: hidden;
-  }
-  #usernameMenu, #modeMenu {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
   }
-  #usernameInput {
-    padding: 10px;
+  
+  h1 {
+    margin-bottom: 20px;
+  }
+  
+  input, button {
     font-size: 18px;
-    width: 300px;
-    margin: 10px;
+    padding: 10px;
+    margin: 5px;
   }
-  button {
-    padding: 15px 30px;
-    font-size: 20px;
-    background: #222;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin: 10px;
-  }
-  button:hover {
-    background: #444;
-  }
-  #gameCanvas {
-    display: none;
-    background: #111;
-  }
-  #overlay {
+  
+  canvas {
+    display: block;
+    background: black;
     position: absolute;
-    top: 10px;
-    left: 10px;
-    color: white;
-    font-size: 16px;
+    top: 0;
+    left: 0;
   }
   
