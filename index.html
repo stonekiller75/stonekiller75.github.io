@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slither.io Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slither.io Style Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Start Screen: Insert Username -->
-  <div id="startScreen">
-    <h2>Insert Your Username</h2>
-    <input id="usernameInput" type="text" placeholder="Enter username...">
-    <button onclick="goToModeMenu()">Enter</button>
-  </div>
+    <div id="startScreen" class="screen">
+        <h1>Enter Your Username</h1>
+        <input type="text" id="usernameInput" placeholder="Username">
+        <button onclick="goToModeMenu()">Enter</button>
+    </div>
 
-  <!-- Mode Menu -->
-  <div id="modeMenu" style="display:none;">
-    <h2>Select Game Mode</h2>
-    <button onclick="startAssassinationMode()">Assassination Mode</button>
-    <button onclick="showInProgress()">Classical Mode</button>
-    <button onclick="showInProgress()">Explosion Mode</button>
-    <button onclick="showInProgress()">Tanks Mode</button>
-    <button onclick="showInProgress()">Levels Mode</button>
-  </div>
+    <div id="modeMenu" class="screen" style="display:none;">
+        <h1>Choose a Game Mode</h1>
+        <button onclick="startAssassinationMode()">Assassination Mode</button>
+        <button onclick="showInProgress()">Classical Mode</button>
+        <button onclick="showInProgress()">Explosion Mode</button>
+        <button onclick="showInProgress()">Tanks Mode</button>
+        <button onclick="showInProgress()">Levels Mode</button>
+    </div>
 
-  <!-- In Progress Screen (for other modes) -->
-  <div id="inProgress" style="display:none;">
-    <h2>Mode In Progress...</h2>
-  </div>
+    <div id="inProgress" class="screen" style="display:none;">
+        <h1>Game Mode In Progress...</h1>
+        <p>Stay tuned for more updates!</p>
+    </div>
 
-  <!-- Game Canvas -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="800" height="600" style="display:none;"></canvas>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+
