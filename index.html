@@ -2,30 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Slither Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Slither Game Modes</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Username Input Menu -->
-  <div id="usernameMenu">
-    <h1>Enter Your Username</h1>
-    <input type="text" id="usernameInput" placeholder="Your Name">
-    <button onclick="enterUsername()">Enter</button>
+  <div id="startScreen">
+    <h1>Enter Username</h1>
+    <input type="text" id="usernameInput" placeholder="Username" />
+    <button onclick="goToModeMenu()">Enter</button>
   </div>
 
-  <!-- Game Mode Menu -->
-  <div id="modeMenu" style="display:none;">
+  <div id="modeMenu" style="display: none;">
     <h1>Select Game Mode</h1>
-    <button onclick="startMode('assassin')">Assassin Mode</button>
+    <button onclick="startMode('assassination')">Assassination Mode</button>
     <button onclick="startMode('classical')">Classical Mode</button>
     <button onclick="startMode('explosion')">Explosion Mode</button>
     <button onclick="startMode('tanks')">Tanks Mode</button>
     <button onclick="startMode('levels')">Levels Mode</button>
   </div>
 
-  <!-- Game Canvas -->
-  <canvas id="gameCanvas" width="1000" height="800"></canvas>
-  <div id="overlay"></div>
+  <div id="inProgressScreen" style="display: none;">
+    <h1 style="color: white; text-align: center; margin-top: 20%;">IN PROGRESS</h1>
+  </div>
+
+  <canvas id="gameCanvas" style="display: none;"></canvas>
 
   <script src="script.js"></script>
 </body>
