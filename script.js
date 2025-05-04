@@ -213,3 +213,4 @@ document.addEventListener("keydown", (e) => {
         player.direction = "DOWN";
     }
 });
+
