@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Slither Game Modes</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slither.io Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Start Screen: Insert Username -->
   <div id="startScreen">
-    <h1>Enter Username</h1>
-    <input type="text" id="usernameInput" placeholder="Username" />
-   <button onclick="goToModeMenu()">Enter</button>
-  </div>
-<input id="usernameInput" type="text" placeholder="Enter username..." />
-
-  <div id="modeMenu" style="display: none;">
-    <h1>Select Game Mode</h1>
-    <button onclick="startMode('assassination')">Assassination Mode</button>
-    <button onclick="startMode('classical')">Classical Mode</button>
-    <button onclick="startMode('explosion')">Explosion Mode</button>
-    <button onclick="startMode('tanks')">Tanks Mode</button>
-    <button onclick="startMode('levels')">Levels Mode</button>
+    <h2>Insert Your Username</h2>
+    <input id="usernameInput" type="text" placeholder="Enter username...">
+    <button onclick="goToModeMenu()">Enter</button>
   </div>
 
-  <div id="inProgressScreen" style="display: none;">
-    <h1 style="color: white; text-align: center; margin-top: 20%;">IN PROGRESS</h1>
+  <!-- Mode Menu -->
+  <div id="modeMenu" style="display:none;">
+    <h2>Select Game Mode</h2>
+    <button onclick="startAssassinationMode()">Assassination Mode</button>
+    <button onclick="showInProgress()">Classical Mode</button>
+    <button onclick="showInProgress()">Explosion Mode</button>
+    <button onclick="showInProgress()">Tanks Mode</button>
+    <button onclick="showInProgress()">Levels Mode</button>
   </div>
 
-  <canvas id="gameCanvas" style="display: none;"></canvas>
+  <!-- In Progress Screen (for other modes) -->
+  <div id="inProgress" style="display:none;">
+    <h2>Mode In Progress...</h2>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
 
   <script src="script.js"></script>
 </body>
