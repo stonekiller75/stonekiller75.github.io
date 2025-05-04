@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Slither Game</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="controls">
-    <button id="up">↑</button>
-    <button id="left">←</button>
-    <button id="down">↓</button>
-    <button id="right">→</button>
+  <!-- Username Input Menu -->
+  <div id="usernameMenu">
+    <h1>Enter Your Username</h1>
+    <input type="text" id="usernameInput" placeholder="Your Name">
+    <button onclick="enterUsername()">Enter</button>
   </div>
-  <div id="lengthDisplay">Length: 1</div>
-  <div id="instructions">Use WASD/Arrow Keys to Move</div>
-  <canvas id="gameCanvas"></canvas>
-  <div id="restartButton" style="display: none;">
-    <button onclick="restartGame()" style="background-color: red;">Restart</button>
+
+  <!-- Game Mode Menu -->
+  <div id="modeMenu" style="display:none;">
+    <h1>Select Game Mode</h1>
+    <button onclick="startMode('assassin')">Assassin Mode</button>
+    <button onclick="startMode('classical')">Classical Mode</button>
+    <button onclick="startMode('explosion')">Explosion Mode</button>
+    <button onclick="startMode('tanks')">Tanks Mode</button>
+    <button onclick="startMode('levels')">Levels Mode</button>
   </div>
+
+  <!-- Game Canvas -->
+  <canvas id="gameCanvas" width="1000" height="800"></canvas>
+  <div id="overlay"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
