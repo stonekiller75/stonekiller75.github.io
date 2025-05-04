@@ -27,9 +27,14 @@
         <p>Stay tuned for more updates!</p>
     </div>
 
-    <canvas id="gameCanvas" width="800" height="600" style="display:none;"></canvas>
+    <div id="gameScreen" style="display:none;">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="controls" class="controls">
+            <p>WASD / Arrow Keys to Move</p>
+        </div>
+        <button id="backButton" onclick="goBack()">Back</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-
