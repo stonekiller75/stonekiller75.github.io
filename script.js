@@ -1,176 +1,260 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-let username = "";
-let mode = "";
-let player = { x: 500, y: 400, dir: 0, color: "white", alive: true };
-let foods = [];
-let aiSnakes = [];
-let targetSnakes = [];
-let keys = {};
+let username = '';
+const startScreen = document.getElementById('startScreen');
+const modeMenu = document.getElementById('modeMenu');
+const inProgressScreen = document.getElementById('inProgressScreen');
+const gameCanvas = document.getElementById('gameCanvas');
+const ctx = gameCanvas.getContext('2d');
 
-function enterUsername() {
-  username = document.getElementById("usernameInput").value.trim();
-  if (!username) return alert("Please enter a username.");
-  document.getElementById("usernameMenu").style.display = "none";
-  document.getElementById("modeMenu").style.display = "flex";
-}
-
-function startMode(selectedMode) {
-  mode = selectedMode;
-  document.getElementById("modeMenu").style.display = "none";
-  canvas.style.display = "block";
-  if (mode === "assassin") startAssassinMode();
-}
-
-function startAssassinMode() {
-  player = { x: 500, y: 400, dir: 0, color: "white", alive: true, segments: [] };
-  foods = generateFoods(100);
-  aiSnakes = generateAISnakes(30, "yellow");
-  targetSnakes = generateAISnakes(2, "blue");
-  requestAnimationFrame(gameLoop);
-}
-
-function generateFoods(n) {
-  let arr = [];
-  for (let i = 0; i < n; i++) {
-    arr.push({ x: Math.random() * 2000 - 1000, y: Math.random() * 2000 - 1000, color: "red" });
+function goToModeMenu() {
+  username = document.getElementById('usernameInput').value.trim();
+  if (!username) {
+    alert("Please enter a username.");
+    return;
   }
-  return arr;
+  startScreen.style.display = 'none';
+  modeMenu.style.display = 'flex';
 }
 
-function generateAISnakes(count, color) {
-  let arr = [];
-  for (let i = 0; i < count; i++) {
-    arr.push({
-      x: Math.random() * 2000 - 1000,
-      y: Math.random() * 2000 - 1000,
-      color,
-      segments: [],
-      alive: true,
-    });
+function startMode(mode) {
+  modeMenu.style.display = 'none';
+  if (mode === 'assassination') {
+    startAssassinationMode();
+  } else {
+    inProgressScreen.style.display = 'flex';
   }
-  return arr;
 }
 
-function gameLoop() {
-  if (!player.alive) return showMessage("You Died. Refresh to Try Again.");
-  if (targetSnakes.every(s => !s.alive)) return showMessage("Assassination Complete!");
+// ===== ASSASSINATION MODE =====
+function startAssassinationMode() {
+  gameCanvas.style.display = 'block';
+  gameCanvas.width = window.innerWidth;
+  gameCanvas.height = window.innerHeight;
 
-  update();
-  draw();
-  requestAnimationFrame(gameLoop);
-}
+  const player = {
+    x: 0,
+    y: 0,
+    dx: 0,
+    dy: 0,
+    speed: 2,
+    size: 10,
+    color: 'white',
+    trail: [],
+    length: 30
+  };
 
-function update() {
-  if (keys["ArrowLeft"] || keys["a"]) player.dir -= 0.05;
-  if (keys["ArrowRight"] || keys["d"]) player.dir += 0.05;
-  player.x += Math.cos(player.dir) * 2;
-  player.y += Math.sin(player.dir) * 2;
+  const food = [];
+  const targetSnakes = [];
+  const aiSnakes = [];
 
-  // AI snakes move toward player
-  aiSnakes.forEach(snake => {
-    if (!snake.alive) return;
-    let dx = player.x - snake.x;
-    let dy = player.y - snake.y;
-    let angle = Math.atan2(dy, dx);
+  const WORLD_RADIUS = 2000;
+
+  // Key tracking
+  const keys = {};
+  window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+  window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+  function spawnFood() {
+    for (let i = 0; i < 100; i++) {
+      food.push({
+        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        color: 'red'
+      });
+    }
+  }
+
+  function spawnTargetSnakes() {
+    for (let i = 0; i < 2; i++) {
+      targetSnakes.push({
+        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        color: 'blue',
+        size: 10,
+        trail: [],
+        length: 25
+      });
+    }
+  }
+
+  function spawnAISnakes() {
+    for (let i = 0; i < 10; i++) {
+      aiSnakes.push({
+        x: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        y: Math.random() * WORLD_RADIUS * 2 - WORLD_RADIUS,
+        color: 'yellow',
+        size: 10,
+        trail: [],
+        length: 25
+      });
+    }
+  }
+
+  function movePlayer() {
+    if (keys['w'] || keys['arrowup']) player.dy = -player.speed;
+    else if (keys['s'] || keys['arrowdown']) player.dy = player.speed;
+    else player.dy = 0;
+
+    if (keys['a'] || keys['arrowleft']) player.dx = -player.speed;
+    else if (keys['d'] || keys['arrowright']) player.dx = player.speed;
+    else player.dx = 0;
+
+    player.x += player.dx;
+    player.y += player.dy;
+
+    player.trail.push({ x: player.x, y: player.y });
+    while (player.trail.length > player.length) {
+      player.trail.shift();
+    }
+  }
+
+  function drawSnake(snake) {
+    ctx.fillStyle = snake.color;
+    for (let t of snake.trail) {
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, snake.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(snake.x, snake.y, snake.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function moveAISnake(snake) {
+    let angle = Math.atan2(0 - snake.y, 0 - snake.x);
     snake.x += Math.cos(angle) * 1.5;
     snake.y += Math.sin(angle) * 1.5;
 
-    if (distance(player, snake) < 15) player.alive = false;
-  });
+    snake.trail.push({ x: snake.x, y: snake.y });
+    while (snake.trail.length > snake.length) {
+      snake.trail.shift();
+    }
+  }
 
-  // Targets don’t attack
-  targetSnakes.forEach(target => {
-    if (!target.alive) return;
-    if (distance(player, target) < 15) target.alive = false;
-  });
+  function drawFood() {
+    for (let f of food) {
+      ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
-  // Check for food
-  foods.forEach(f => {
-    if (distance(player, f) < 10) f.x = Math.random() * 2000 - 1000, f.y = Math.random() * 2000 - 1000;
-  });
-}
+  function eatFood() {
+    for (let i = food.length - 1; i >= 0; i--) {
+      const f = food[i];
+      const dx = f.x - player.x;
+      const dy = f.y - player.y;
+      if (Math.hypot(dx, dy) < player.size + 5) {
+        food.splice(i, 1);
+        player.length += 5;
+      }
+    }
+  }
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.translate(canvas.width / 2 - player.x, canvas.height / 2 - player.y);
+  function checkCollisions() {
+    for (let i = targetSnakes.length - 1; i >= 0; i--) {
+      const t = targetSnakes[i];
+      if (Math.hypot(t.x - player.x, t.y - player.y) < t.size + player.size) {
+        targetSnakes.splice(i, 1);
+        player.length += 10;
+      }
+    }
 
-  // Draw food
-  foods.forEach(f => {
-    ctx.fillStyle = f.color;
+    for (let ai of aiSnakes) {
+      if (Math.hypot(ai.x - player.x, ai.y - player.y) < ai.size + player.size) {
+        endGame(false);
+      }
+    }
+
+    if (targetSnakes.length === 0) {
+      endGame(true);
+    }
+  }
+
+  function endGame(won) {
+    alert(won ? "Assassination Complete!" : "You Died!");
+    location.reload();
+  }
+
+  function drawMinimap() {
+    const mapRadius = 100;
+    const cx = gameCanvas.width - mapRadius - 20;
+    const cy = gameCanvas.height - mapRadius - 20;
+
+    ctx.save();
+    ctx.globalAlpha = 0.5;
     ctx.beginPath();
-    ctx.arc(f.x, f.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Draw AI
-  aiSnakes.forEach(s => {
-    if (!s.alive) return;
-    ctx.fillStyle = s.color;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, 10, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Draw targets
-  targetSnakes.forEach(s => {
-    if (!s.alive) return;
-    ctx.fillStyle = s.color;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, 10, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Draw player
-  if (player.alive) {
-    ctx.fillStyle = player.color;
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, 10, 0, Math.PI * 2);
-    ctx.fill();
-
+    ctx.arc(cx, cy, mapRadius, 0, Math.PI * 2);
     ctx.fillStyle = "white";
-    ctx.fillText(username, player.x - 20, player.y - 15);
+    ctx.fill();
+    ctx.clip();
+
+    function mapX(x) {
+      return cx + (x / WORLD_RADIUS) * mapRadius;
+    }
+
+    function mapY(y) {
+      return cy + (y / WORLD_RADIUS) * mapRadius;
+    }
+
+    for (let f of food) {
+      ctx.fillStyle = f.color;
+      ctx.beginPath();
+      ctx.arc(mapX(f.x), mapY(f.y), 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (let t of targetSnakes) {
+      ctx.fillStyle = t.color;
+      ctx.beginPath();
+      ctx.arc(mapX(t.x), mapY(t.y), 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    for (let ai of aiSnakes) {
+      ctx.fillStyle = ai.color;
+      ctx.beginPath();
+      ctx.arc(mapX(ai.x), mapY(ai.y), 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(mapX(player.x), mapY(player.y), 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
   }
 
-  ctx.restore();
+  function draw() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-  // Minimap
-  drawMinimap();
-}
+    ctx.save();
+    ctx.translate(gameCanvas.width / 2 - player.x, gameCanvas.height / 2 - player.y);
 
-function drawMinimap() {
-  const size = 150;
-  const cx = canvas.width - size - 10;
-  const cy = canvas.height - size - 10;
+    drawFood();
+    drawSnake(player);
+    for (let t of targetSnakes) drawSnake(t);
+    for (let ai of aiSnakes) {
+      moveAISnake(ai);
+      drawSnake(ai);
+    }
 
-  ctx.fillStyle = "#222";
-  ctx.beginPath();
-  ctx.arc(cx + size / 2, cy + size / 2, size / 2, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.restore();
 
-  function drawDot(x, y, color) {
-    let mx = ((x + 1000) / 2000) * size;
-    let my = ((y + 1000) / 2000) * size;
-    ctx.fillStyle = color;
-    ctx.fillRect(cx + mx - 2, cy + my - 2, 4, 4);
+    drawMinimap();
   }
 
-  if (player.alive) drawDot(player.x, player.y, "white");
-  aiSnakes.forEach(s => s.alive && drawDot(s.x, s.y, "yellow"));
-  targetSnakes.forEach(s => s.alive && drawDot(s.x, s.y, "blue"));
-  foods.forEach(f => drawDot(f.x, f.y, "red"));
-}
+  function gameLoop() {
+    movePlayer();
+    eatFood();
+    checkCollisions();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
 
-function distance(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
+  spawnFood();
+  spawnTargetSnakes();
+  spawnAISnakes();
+  gameLoop();
 }
-
-function showMessage(text) {
-  ctx.fillStyle = "white";
-  ctx.font = "30px sans-serif";
-  ctx.fillText(text, canvas.width / 2 - 150, canvas.height / 2);
-}
-
-document.addEventListener("keydown", e => keys[e.key] = true);
-document.addEventListener("keyup", e => keys[e.key] = false);
