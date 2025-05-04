@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slither Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="controls">
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+  </div>
+  <div id="lengthDisplay">Length: 1</div>
+  <div id="instructions">Use WASD/Arrow Keys to Move</div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="restartButton" style="display: none;">
+    <button onclick="restartGame()" style="background-color: red;">Restart</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
